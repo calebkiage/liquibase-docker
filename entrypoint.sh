@@ -8,16 +8,19 @@ DATABASE_URL="${DATABASE_URL}"
 
 # Call set_liquibase_property key value
 set_liquibase_property() {
-  KEY=$1
-  VALUE=$2
-  if [ -z $KEY]; then
+  KEY="$1"
+  VALUE="$2"
+  if [ -z "$KEY" ]; then
     return 1
   fi
-  if [ -z $2]; then
+  if [ -z "$2" ]; then
     return 1
   fi
+  
+  touch ./liquibase.properties
+  grep -q "^${KEY}:" ./liquibase.properties
 
-  if [ grep -c "^${KEY}:" ]; then
+  if [ $? -eq 0 ]; then
     sed -i "s/^${KEY}:.*$/${KEY}: ${VALUE}/g" ./liquibase.properties
   else
     echo "${KEY}: ${VALUE}" >> ./liquibase.properties
@@ -30,15 +33,16 @@ CLASSPATH="${CLASSPATH}"
 
 # Check drivers folder for jar files and add them to the classpath
 for filename in ./drivers/*.jar; do
-  if [ -z "${CLASSPATH}" ]; then
-    CLASSPATH="$filename"
-  else
-    CLASSPATH="${filename}:${CLASSPATH}"
+  if [ -r "$filename" ]; then
+    if [ -z "${CLASSPATH}" ]; then
+      CLASSPATH="$filename"
+    else
+      CLASSPATH="${filename}:${CLASSPATH}"
+    fi
   fi
-
-  set_liquibase_property "classpath" "${CLASSPATH}"
 done
 
+set_liquibase_property "classpath" "${CLASSPATH}"
 set_liquibase_property "driver" "${DATABASE_DRIVER}"
 set_liquibase_property "changeLogFile" "${CHANGELOG_FILE}"
 set_liquibase_property "password" "${DATABASE_PASSWORD}"
@@ -50,8 +54,6 @@ case "$WAIT_FOR_DATABASE" in
   y*|t*)
     WAIT="true";;
 esac
-
-HOST_PORT
 
 if [ "$WAIT" = "true" ]; then
   echo "Waiting for a connection to the database"

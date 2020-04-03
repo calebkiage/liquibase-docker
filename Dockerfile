@@ -26,9 +26,6 @@ ARG LIQUIBASE_VERSION=3.8.8
 # DB engine to fetch jdbc driver for mysql, postgres, mssql
 ARG DB_ENGINE=""
 
-COPY entrypoint.sh /scripts/entrypoint.sh
-COPY wait-for-it.sh /scripts/wait-for-it.sh
-
 # Download, install, clean up
 RUN mkdir ./drivers ./migrations && \
     apk add --no-cache curl && \
@@ -51,8 +48,13 @@ RUN mkdir ./drivers ./migrations && \
     esac \
     && curl -L https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz | tar -xz \
     && apk del curl \
-    && chown -R liquibase:liquibase ./ /scripts \
-    && chmod 0544 ./liquibase /scripts/entrypoint.sh /scripts/wait-for-it.sh
+    && chown -R liquibase:liquibase ./ \
+    && chmod 0544 ./liquibase
+
+COPY --chown=liquibase:liquibase entrypoint.sh /scripts/entrypoint.sh
+COPY --chown=liquibase:liquibase wait-for-it.sh /scripts/wait-for-it.sh
+
+RUN chmod 0544 /scripts/entrypoint.sh /scripts/wait-for-it.sh
 
 USER liquibase
 

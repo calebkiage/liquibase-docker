@@ -1,0 +1,48 @@
+FROM alpine:3.11
+
+MAINTAINER Caleb Kiage <caleb.kiage@gmail.com>
+
+ENV CHANGELOG_FILE=""\
+    CLASSPATH=""\
+    DATABASE_DRIVER=""\
+    DATABASE_HOST=""\
+    DATABASE_PASSWORD=""\
+    DATABASE_PORT=""\
+    DATABASE_URL=""\
+    DATABASE_USERNAME=""\
+    WAIT_FOR_DATABASE=""\
+    WAIT_TIMEOUT=5
+
+# Install JRE
+RUN apk add --no-cache openjdk8-jre-base bash
+
+# Add the user and step in their home directory
+RUN addgroup -S liquibase && adduser -S -D -h /liquibase -G liquibase liquibase
+WORKDIR /liquibase
+
+# Latest Liquibase Release Version
+ARG LIQUIBASE_VERSION=3.8.8
+
+# Download, install, clean up
+RUN mkdir ./drivers ./migrations \
+    && apk add --no-cache curl \
+    && URL=https://jdbc.postgresql.org/download/postgresql-42.2.12.jar \
+    && curl -L $URL -o ./drivers/postgresql-42.2.12.jar \
+    && echo "driver: org.postgresql.Driver" >> ./liquibase.properties \
+    && curl -L https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz | tar -xz \
+    && apk del curl \
+    && chown -R liquibase:liquibase ./ \
+    && chmod 0544 ./liquibase
+
+COPY --chown=liquibase:liquibase entrypoint.sh /scripts/entrypoint.sh
+COPY --chown=liquibase:liquibase wait-for-it.sh /scripts/wait-for-it.sh
+
+RUN chmod 0544 ./liquibase /scripts/entrypoint.sh /scripts/wait-for-it.sh
+
+USER liquibase
+
+VOLUME /liquibase/migrations
+VOLUME /liquibase/drivers
+
+ENTRYPOINT ["/scripts/entrypoint.sh"]
+CMD ["./liquibase", "--version"]
