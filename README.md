@@ -43,5 +43,6 @@ commands that connect to a password protected database)
 #### Volumes
 
 `/liquibase/migrations`: A directory for placing migrations
+
 `/liquibase/drivers`: A directory to store JDBC drivers. By default, this directory is scanned on startup
 and all the jar files are added to the classpath.
