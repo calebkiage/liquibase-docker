@@ -5,6 +5,7 @@ DATABASE_HOST="${DATABASE_HOST}"
 DATABASE_PORT="${DATABASE_PORT}"
 DATABASE_DRIVER="${DATABASE_DRIVER}"
 DATABASE_URL="${DATABASE_URL}"
+PATH="/liquibase:${PATH}"
 
 # Call set_liquibase_property key value
 set_liquibase_property() {
