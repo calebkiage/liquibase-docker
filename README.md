@@ -35,7 +35,7 @@ $ docker run -ti --name some-name --rm \
 -e DATABASE_URL=jdbc:mysql://localhost:3306/test-database \
 -e DATABASE_USERNAME=user \
 -e DATABASE_PASSWORD=password \
-calebkiage/liquibase-cli:mysql-latest liquibase
+calebkiage/liquibase-cli:mysql-latest liquibase update
 ```
 
 ### Environment Variables
