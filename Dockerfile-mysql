@@ -28,7 +28,7 @@ RUN mkdir ./drivers ./migrations \
     && apk add --no-cache curl \
     && URL=https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.19.tar.gz \
     && curl -L $URL -o mysql-connector-java-8.0.19.tar.gz \
-    && tar -t -f ./mysql-connector-java-8.0.19.tar.gz | grep 'java-.\.jar' > mysql-connector-java-8.0.19.txt \
+    && tar -t -f ./mysql-connector-java-8.0.19.tar.gz | grep 'java-.*\.jar' > mysql-connector-java-8.0.19.txt \
     && tar -xzv -O -T ./mysql-connector-java-8.0.19.txt -f ./mysql-connector-java-8.0.19.tar.gz > ./drivers/mssql-jdbc-8.2.0.jre8.jar \
     && rm ./mysql-connector-* \
     && echo "driver: com.mysql.jdbc.Driver" >> ./liquibase.properties \
